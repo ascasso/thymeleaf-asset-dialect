@@ -1,0 +1,3 @@
+rootProject.name = 'thymeleaf-asset-dialect'
+include 'core'
+include 'sample'
