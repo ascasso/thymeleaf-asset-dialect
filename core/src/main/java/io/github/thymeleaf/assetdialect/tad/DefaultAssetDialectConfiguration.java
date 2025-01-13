@@ -1,24 +1,21 @@
 package io.github.thymeleaf.assetdialect.tad;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Spring configuration properties for Thymeleaf Asset Dialect.
+ * Default implementation of AssetDialectConfiguration.
  */
-@ConfigurationProperties(prefix = "tad")
-public class AssetProperties implements AssetDialectConfiguration {
-
+public class DefaultAssetDialectConfiguration implements AssetDialectConfiguration {
     private boolean enabled = true;
     private String defaultCdn;
     private Map<String, String> cdns = new HashMap<>();
     private String localPath = "";
     private boolean useLocalInDev = true;
     private boolean versionAssets = true;
-    private String versionStrategy = "hash"; // or "timestamp"
+    private String versionStrategy = "hash";
 
-    // Getters and setters
+    @Override
     public boolean isEnabled() {
         return enabled;
     }
@@ -27,6 +24,7 @@ public class AssetProperties implements AssetDialectConfiguration {
         this.enabled = enabled;
     }
 
+    @Override
     public String getDefaultCdn() {
         return defaultCdn;
     }
@@ -35,6 +33,7 @@ public class AssetProperties implements AssetDialectConfiguration {
         this.defaultCdn = defaultCdn;
     }
 
+    @Override
     public Map<String, String> getCdns() {
         return cdns;
     }
@@ -43,6 +42,7 @@ public class AssetProperties implements AssetDialectConfiguration {
         this.cdns = cdns;
     }
 
+    @Override
     public String getLocalPath() {
         return localPath;
     }
@@ -51,6 +51,7 @@ public class AssetProperties implements AssetDialectConfiguration {
         this.localPath = localPath;
     }
 
+    @Override
     public boolean isUseLocalInDev() {
         return useLocalInDev;
     }
@@ -59,6 +60,7 @@ public class AssetProperties implements AssetDialectConfiguration {
         this.useLocalInDev = useLocalInDev;
     }
 
+    @Override
     public boolean isVersionAssets() {
         return versionAssets;
     }
@@ -67,6 +69,7 @@ public class AssetProperties implements AssetDialectConfiguration {
         this.versionAssets = versionAssets;
     }
 
+    @Override
     public String getVersionStrategy() {
         return versionStrategy;
     }
