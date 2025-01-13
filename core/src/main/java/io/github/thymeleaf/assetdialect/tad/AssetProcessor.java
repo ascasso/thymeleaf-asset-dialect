@@ -1,6 +1,5 @@
 package io.github.thymeleaf.assetdialect.tad;
 
-import org.springframework.util.StringUtils;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.engine.AttributeName;
 import org.thymeleaf.model.IProcessableElementTag;
@@ -26,7 +25,7 @@ public class AssetProcessor extends AbstractAttributeTagProcessor {
                              AttributeName attributeName, String attributeValue,
                              IElementTagStructureHandler handler) {
         // If asset:src is empty, get the value from src attribute
-        String path = StringUtils.hasText(attributeValue)
+        String path = (attributeValue != null && !attributeValue.trim().isEmpty())
                 ? attributeValue
                 : tag.getAttribute("src").getValue();
 
