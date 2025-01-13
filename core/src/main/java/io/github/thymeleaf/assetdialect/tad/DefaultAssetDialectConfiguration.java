@@ -5,6 +5,7 @@ import java.util.Map;
 
 /**
  * Default implementation of AssetDialectConfiguration.
+ * Can be configured using setter methods or the builder pattern.
  */
 public class DefaultAssetDialectConfiguration implements AssetDialectConfiguration {
     private boolean enabled = true;
@@ -76,5 +77,65 @@ public class DefaultAssetDialectConfiguration implements AssetDialectConfigurati
 
     public void setVersionStrategy(String versionStrategy) {
         this.versionStrategy = versionStrategy;
+    }
+
+    /**
+     * Creates a new builder for DefaultAssetDialectConfiguration.
+     *
+     * @return a new builder instance
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder for DefaultAssetDialectConfiguration.
+     */
+    public static class Builder {
+        private final DefaultAssetDialectConfiguration instance = new DefaultAssetDialectConfiguration();
+
+        public Builder enabled(boolean enabled) {
+            instance.setEnabled(enabled);
+            return this;
+        }
+
+        public Builder defaultCdn(String defaultCdn) {
+            instance.setDefaultCdn(defaultCdn);
+            return this;
+        }
+
+        public Builder cdns(Map<String, String> cdns) {
+            instance.setCdns(cdns);
+            return this;
+        }
+
+        public Builder addCdn(String name, String url) {
+            instance.getCdns().put(name, url);
+            return this;
+        }
+
+        public Builder localPath(String localPath) {
+            instance.setLocalPath(localPath);
+            return this;
+        }
+
+        public Builder useLocalInDev(boolean useLocalInDev) {
+            instance.setUseLocalInDev(useLocalInDev);
+            return this;
+        }
+
+        public Builder versionAssets(boolean versionAssets) {
+            instance.setVersionAssets(versionAssets);
+            return this;
+        }
+
+        public Builder versionStrategy(String versionStrategy) {
+            instance.setVersionStrategy(versionStrategy);
+            return this;
+        }
+
+        public DefaultAssetDialectConfiguration build() {
+            return instance;
+        }
     }
 }
