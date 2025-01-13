@@ -1,15 +1,11 @@
 package io.github.thymeleaf.assetdialect.tad;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Configuration properties for Thymeleaf Asset Dialect.
- * Configuration prefix is 'tad' (Thymeleaf Asset Dialect).
  */
-@ConfigurationProperties(prefix = "tad")
 public class AssetProperties {
 
     private boolean enabled = true;
