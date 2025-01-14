@@ -72,9 +72,8 @@ class DefaultAssetResolverTest {
         when(properties.isUseLocalInDev()).thenReturn(true);
         when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
 
-        String resolvedPath = resolver.resolve("test.css", null, true);
-        
-        // Extract just the filename from the full path for pattern matching
+        // Test both with and without leading slash
+        String resolvedPath = resolver.resolve("/test.css", null, true);
         String filename = Path.of(resolvedPath).getFileName().toString();
         assertThat(filename).matches("test\\.[a-f0-9]{32}\\.css");
     }

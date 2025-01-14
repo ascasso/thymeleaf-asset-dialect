@@ -105,13 +105,20 @@ public class DefaultAssetResolver implements AssetResolver {
             String localPath = properties.getLocalPath();
             Path filePath;
             
-            // Try with local path prefix first
+            // Normalize the path by removing leading slash
+            String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+            
+            // Try with local path prefix
             if (StringUtils.hasText(localPath)) {
-                filePath = Paths.get(localPath).resolve(path);
-            } else {
-                filePath = Paths.get(path);
+                filePath = Paths.get(localPath, normalizedPath);
+                if (Files.exists(filePath)) {
+                    byte[] content = Files.readAllBytes(filePath);
+                    return DigestUtils.md5DigestAsHex(content);
+                }
             }
             
+            // Fallback to direct path
+            filePath = Paths.get(normalizedPath);
             if (Files.exists(filePath)) {
                 byte[] content = Files.readAllBytes(filePath);
                 return DigestUtils.md5DigestAsHex(content);
