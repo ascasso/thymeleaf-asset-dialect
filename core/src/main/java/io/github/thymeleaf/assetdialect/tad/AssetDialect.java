@@ -15,7 +15,7 @@ public class AssetDialect extends AbstractProcessorDialect {
     private final AssetResolver resolver;
 
     public AssetDialect(AssetProperties properties, AssetResolver resolver) {
-        super("Asset Manager", "asset", 1000);
+        super("Asset Manager", "tad", 1000);
         this.properties = properties;
         this.resolver = resolver;
     }
