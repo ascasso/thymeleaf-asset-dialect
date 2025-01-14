@@ -68,22 +68,15 @@ class DefaultAssetResolverTest {
         when(properties.isEnabled()).thenReturn(true);
         when(properties.isVersionAssets()).thenReturn(true);
         when(properties.getVersionStrategy()).thenReturn("hash");
-        when(properties.getLocalPath()).thenReturn("src/test/resources");
+        when(properties.getLocalPath()).thenReturn("src/test/resources/static");
+        when(properties.isUseLocalInDev()).thenReturn(true);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
 
-        // Create a test file in the expected local path
-        Path testFilePath = Path.of("src/test/resources/test.css");
-        Files.createDirectories(testFilePath.getParent());
-        Files.writeString(testFilePath, "body { background: red; }");
-
-        // Resolve the asset 
         String resolvedPath = resolver.resolve("test.css", null, true);
-
+        
         // Extract just the filename from the full path for pattern matching
         String filename = Path.of(resolvedPath).getFileName().toString();
         assertThat(filename).matches("test\\.[a-f0-9]{32}\\.css");
-
-        // Cleanup the test file
-        Files.delete(testFilePath);
     }
     @Test
     void shouldDefaultToCurrentTimestampWhenHashFails() {
