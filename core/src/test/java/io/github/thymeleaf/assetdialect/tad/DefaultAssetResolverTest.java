@@ -33,7 +33,7 @@ class DefaultAssetResolverTest {
     void shouldReturnOriginalPathWhenDisabled() {
         when(properties.isEnabled()).thenReturn(false);
 
-        String path = "test.css";
+        String path = "static/test.css";
         String result = resolver.resolve(path, null, false);
 
         assertThat(result).isEqualTo(path);
@@ -44,7 +44,7 @@ class DefaultAssetResolverTest {
         when(properties.isEnabled()).thenReturn(true);
         when(properties.getLocalPath()).thenReturn("/local");
 
-        String path = "test.css";
+        String path = "static/test.css";
         String result = resolver.resolve(path, null, true);
 
         assertThat(result).isEqualTo("/local/test.css");
@@ -56,7 +56,7 @@ class DefaultAssetResolverTest {
         when(properties.getCdns()).thenReturn(Map.of("cdn1", "https://cdn.example.com"));
         when(properties.isVersionAssets()).thenReturn(false);
 
-        String path = "test.css";
+        String path = "static/test.css";
         String result = resolver.resolve(path, "cdn1", false);
 
         assertThat(result).isEqualTo("https://cdn.example.com/test.css");
@@ -68,15 +68,15 @@ class DefaultAssetResolverTest {
         when(properties.isEnabled()).thenReturn(true);
         when(properties.isVersionAssets()).thenReturn(true);
         when(properties.getVersionStrategy()).thenReturn("hash");
-        when(properties.getLocalPath()).thenReturn("src/main/resources/static");
+        when(properties.getLocalPath()).thenReturn("src/test/resources/static");
 
         // Create a test file in the expected local path
-        Path testFilePath = Path.of("src/main/resources/static/test.css");
+        Path testFilePath = Path.of("src/test/resources/static/test.css");
         Files.createDirectories(testFilePath.getParent());
         Files.writeString(testFilePath, "body { background: red; }");
 
         // Resolve the asset
-        String resolvedPath = resolver.resolve("test.css", null, true);
+        String resolvedPath = resolver.resolve("static/test.css", null, true);
 
         // Validate that the resolved path includes a hash
         assertThat(resolvedPath).matches("test\\.[a-f0-9]{32}\\.css");
