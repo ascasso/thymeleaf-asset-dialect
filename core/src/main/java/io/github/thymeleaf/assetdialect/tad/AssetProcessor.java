@@ -24,10 +24,8 @@ public class AssetProcessor extends AbstractAttributeTagProcessor {
     protected void doProcess(ITemplateContext context, IProcessableElementTag tag,
                              AttributeName attributeName, String attributeValue,
                              IElementTagStructureHandler handler) {
-        // If asset:src is empty, get the value from src attribute
-        String path = (attributeValue != null && !attributeValue.trim().isEmpty())
-                ? attributeValue
-                : tag.getAttribute("src").getValue();
+        // Get the path from the tad:src attribute
+        String path = attributeValue;
 
         // Get CDN attribute if present
         String cdn = null;
