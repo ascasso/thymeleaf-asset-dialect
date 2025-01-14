@@ -68,7 +68,7 @@ class DefaultAssetResolverTest {
         when(properties.isEnabled()).thenReturn(true);
         when(properties.isVersionAssets()).thenReturn(true);
         when(properties.getVersionStrategy()).thenReturn("hash");
-        when(properties.getLocalPath()).thenReturn("src/test/resources/static");
+        when(properties.getLocalPath()).thenReturn("src/test/resources");
 
         // Create a test file in the expected local path
         Path testFilePath = Path.of("src/test/resources/test.css");
@@ -76,10 +76,10 @@ class DefaultAssetResolverTest {
         Files.writeString(testFilePath, "body { background: red; }");
 
         // Resolve the asset
-        String resolvedPath = resolver.resolve("static/test.css", null, true);
+        String resolvedPath = resolver.resolve("test.css", null, true);
 
         // Validate that the resolved path includes a hash
-        assertThat(resolvedPath).matches("test\\.[a-f0-9]{32}\\.css");
+        assertThat(resolvedPath).matches("src/test/resources/test\\.[a-f0-9]{32}\\.css");
 
         // Cleanup the test file
         Files.delete(testFilePath);
