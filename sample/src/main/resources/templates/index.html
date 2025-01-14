@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:tad="https://github.com/thymeleaf/thymeleaf-asset-dialect">
+      xmlns:tad="thymeleaf-asset-dialect">
 <head>
     <meta charset="UTF-8">
     <title>Asset Dialect Demo</title>
     
-    <!-- Local CSS using the asset dialect -->
-    <link rel="stylesheet" th:tad:src="css/styles.css">
-    
-    <!-- CDN resources using specific CDN configuration -->
-    <link rel="stylesheet" th:tad:src="css/bootstrap.min.css" th:tad:cdn="bootstrap">
-    <script th:tad:src="jquery.min.js" th:tad:cdn="jquery"></script>
+    <!-- Test with just one simple asset -->
+    <link rel="stylesheet" tad:src="@{/css/styles.css}">
 </head>
 <body>
     <div class="container mt-5">
