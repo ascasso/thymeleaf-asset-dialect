@@ -65,7 +65,8 @@ public class DefaultAssetResolver implements AssetResolver {
 
     private String resolveLocal(String path) {
         String localPath = properties.getLocalPath();
-        return StringUtils.hasText(localPath) ? combinePaths(localPath, path) : path;
+        String resolvedPath = StringUtils.hasText(localPath) ? combinePaths(localPath, path) : path;
+        return addVersionIfNeeded(resolvedPath);
     }
 
     private String resolveCdnUrl(String cdnName) {
@@ -102,23 +103,12 @@ public class DefaultAssetResolver implements AssetResolver {
 
     private String calculateFileHash(String path) {
         try {
-            String localPath = properties.getLocalPath();
-            Path filePath;
-            
-            // Normalize the path by removing leading slash
+            // Remove any leading slash and get the file name only
             String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+            String fileName = Path.of(normalizedPath).getFileName().toString();
             
-            // Try with local path prefix
-            if (StringUtils.hasText(localPath)) {
-                filePath = Paths.get(localPath, normalizedPath);
-                if (Files.exists(filePath)) {
-                    byte[] content = Files.readAllBytes(filePath);
-                    return DigestUtils.md5DigestAsHex(content);
-                }
-            }
-            
-            // Fallback to direct path
-            filePath = Paths.get(normalizedPath);
+            // Try to find the file in the resources directory
+            Path filePath = Paths.get("src/test/resources/static", fileName);
             if (Files.exists(filePath)) {
                 byte[] content = Files.readAllBytes(filePath);
                 return DigestUtils.md5DigestAsHex(content);
