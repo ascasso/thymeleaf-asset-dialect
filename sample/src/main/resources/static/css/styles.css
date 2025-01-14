@@ -1,0 +1,21 @@
+.custom-text {
+    color: #2c3e50;
+    font-size: 1.2em;
+    margin: 20px 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+ul {
+    list-style-type: circle;
+    margin-left: 20px;
+}
+
+li {
+    margin: 10px 0;
+    color: #34495e;
+}

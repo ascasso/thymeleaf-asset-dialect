@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tad="http://www.thymeleaf.org/asset">
+<head>
+    <meta charset="UTF-8">
+    <title>Asset Dialect Demo</title>
+    
+    <!-- Local CSS using the asset dialect -->
+    <link rel="stylesheet" tad:src="css/styles.css">
+    
+    <!-- CDN resources using specific CDN configuration -->
+    <link rel="stylesheet" tad:src="css/bootstrap.min.css" tad:cdn="bootstrap">
+    <script tad:src="jquery.min.js" tad:cdn="jquery"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Thymeleaf Asset Dialect Demo</h1>
+        <p class="custom-text">This page demonstrates the Asset Dialect functionality:</p>
+        <ul>
+            <li>Local asset loading (styles.css)</li>
+            <li>CDN integration (Bootstrap and jQuery)</li>
+            <li>Asset versioning</li>
+            <li>Environment-aware resolution</li>
+        </ul>
+    </div>
+</body>
+</html>
