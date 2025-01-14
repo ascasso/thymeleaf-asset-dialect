@@ -33,7 +33,7 @@ class DefaultAssetResolverTest {
     void shouldReturnOriginalPathWhenDisabled() {
         when(properties.isEnabled()).thenReturn(false);
 
-        String path = "static/test.css";
+        String path = "test.css";
         String result = resolver.resolve(path, null, false);
 
         assertThat(result).isEqualTo(path);
@@ -44,7 +44,7 @@ class DefaultAssetResolverTest {
         when(properties.isEnabled()).thenReturn(true);
         when(properties.getLocalPath()).thenReturn("/local");
 
-        String path = "static/test.css";
+        String path = "test.css";
         String result = resolver.resolve(path, null, true);
 
         assertThat(result).isEqualTo("/local/test.css");
@@ -56,7 +56,7 @@ class DefaultAssetResolverTest {
         when(properties.getCdns()).thenReturn(Map.of("cdn1", "https://cdn.example.com"));
         when(properties.isVersionAssets()).thenReturn(false);
 
-        String path = "static/test.css";
+        String path = "test.css";
         String result = resolver.resolve(path, "cdn1", false);
 
         assertThat(result).isEqualTo("https://cdn.example.com/test.css");
@@ -71,7 +71,7 @@ class DefaultAssetResolverTest {
         when(properties.getLocalPath()).thenReturn("src/test/resources/static");
 
         // Create a test file in the expected local path
-        Path testFilePath = Path.of("src/test/resources/static/test.css");
+        Path testFilePath = Path.of("src/test/resources/test.css");
         Files.createDirectories(testFilePath.getParent());
         Files.writeString(testFilePath, "body { background: red; }");
 
