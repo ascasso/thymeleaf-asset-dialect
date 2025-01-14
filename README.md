@@ -1,4 +1,16 @@
-#
+# Thymeleaf Asset Dialect (TAD)
+
+A Thymeleaf dialect that simplifies asset management in web applications, providing CDN support, local development paths, and asset versioning.
+
+## Features
+
+CDN URL resolution with support for multiple CDNs
+Automatic local path resolution for development
+Asset versioning with hash or timestamp strategies
+Spring Boot auto-configuration  Framework-agnostic core (can be used without Spring)
+
+
+
 
 ## HTML Example
 
