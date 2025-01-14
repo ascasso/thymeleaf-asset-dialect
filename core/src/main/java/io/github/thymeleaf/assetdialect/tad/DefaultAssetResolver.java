@@ -102,7 +102,14 @@ public class DefaultAssetResolver implements AssetResolver {
 
     private String calculateFileHash(String path) {
         try {
-            Path filePath = Paths.get(properties.getLocalPath(), path);
+            // First try the absolute path
+            Path filePath = Paths.get(path);
+            if (!Files.exists(filePath)) {
+                // If not found, try with local path prefix
+                String localPath = properties.getLocalPath();
+                filePath = Paths.get(localPath, path);
+            }
+            
             if (Files.exists(filePath)) {
                 byte[] content = Files.readAllBytes(filePath);
                 return DigestUtils.md5DigestAsHex(content);
