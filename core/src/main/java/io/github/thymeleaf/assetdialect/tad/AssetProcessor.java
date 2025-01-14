@@ -24,8 +24,9 @@ public class AssetProcessor extends AbstractAttributeTagProcessor {
     protected void doProcess(ITemplateContext context, IProcessableElementTag tag,
                              AttributeName attributeName, String attributeValue,
                              IElementTagStructureHandler handler) {
-        // Get the path from the tad:src attribute
-        String path = attributeValue;
+        if (attributeValue == null || attributeValue.trim().isEmpty()) {
+            return;
+        }
 
         // Get CDN attribute if present
         String cdn = null;
@@ -41,7 +42,9 @@ public class AssetProcessor extends AbstractAttributeTagProcessor {
             forceLocal = Boolean.parseBoolean(localAttr.getValue());
         }
 
-        String resolvedUrl = resolver.resolve(path, cdn, forceLocal);
+        // Resolve the URL and set both the original src and our prefixed attribute
+        String resolvedUrl = resolver.resolve(attributeValue, cdn, forceLocal);
         handler.setAttribute("src", resolvedUrl);
+        handler.removeAttribute(attributeName);
     }
 }
