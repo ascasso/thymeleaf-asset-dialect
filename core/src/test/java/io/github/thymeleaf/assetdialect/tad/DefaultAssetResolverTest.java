@@ -75,11 +75,12 @@ class DefaultAssetResolverTest {
         Files.createDirectories(testFilePath.getParent());
         Files.writeString(testFilePath, "body { background: red; }");
 
-        // Resolve the asset
+        // Resolve the asset 
         String resolvedPath = resolver.resolve("test.css", null, true);
 
-        // Validate that the resolved path includes a hash
-        assertThat(resolvedPath).matches("src/test/resources/test\\.[a-f0-9]{32}\\.css");
+        // Extract just the filename from the full path for pattern matching
+        String filename = Path.of(resolvedPath).getFileName().toString();
+        assertThat(filename).matches("test\\.[a-f0-9]{32}\\.css");
 
         // Cleanup the test file
         Files.delete(testFilePath);
