@@ -9,9 +9,6 @@ Automatic local path resolution for development
 Asset versioning with hash or timestamp strategies
 Spring Boot auto-configuration  Framework-agnostic core (can be used without Spring)
 
-
-
-
 ## HTML Example
 
 ```html
@@ -41,4 +38,9 @@ DefaultAssetDialectConfiguration config = DefaultAssetDialectConfiguration.build
     .versionAssets(true)
     .versionStrategy("hash")
     .build();
+```
+
+## Running the sample app:
+```
+./gradlew :sample:bootRun
 ```
