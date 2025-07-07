@@ -41,3 +41,15 @@ Target Use Cases:
 This is a very practical tool for production web applications where asset delivery performance and cache
 management are important concerns.
 
+## Security issues
+
+Specific Security Issues:
+
+1. Insufficient Path Validation: The code only calls getFileName() but doesn't validate the input path for
+   malicious sequences
+2. Path Traversal Sequences: Malicious inputs like ../../../etc/passwd or
+   ..\\..\\windows\\system32\\config\\sam could potentially be processed
+3. Directory Traversal: Even though getFileName() extracts the filename, the original normalizedPath is
+   used to create the Path object, which could contain traversal sequences
+4. Hardcoded Base Path: The hardcoded "src/test/resources/static" path is problematic and not
+   production-ready
