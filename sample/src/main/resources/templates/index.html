@@ -1,24 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:tad="thymeleaf-asset-dialect">
+So       xmlns:tad="http://www.thymeleaf.org/assetdialect/tad">
 <head>
     <meta charset="UTF-8">
     <title>Asset Dialect Demo</title>
-    
-    <!-- Test with just one simple asset -->
-    <link rel="stylesheet" href="/css/styles.css">
+
+    <!--
+      The tad:href attribute processes the asset path.
+      In a "local" environment, it resolves to a versioned path like /static/css/styles.css?v=....
+      In a "production" environment (when tad.cdn-url is set), it points to the CDN.
+    -->
+    <link rel="stylesheet" tad:href="/css/styles.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Thymeleaf Asset Dialect Demo</h1>
-        <p><img src="/image.jpg" tad:src alt="The TAD logo"></p>
-        <p class="custom-text">This page demonstrates the Asset Dialect functionality:</p>
-        <ul>
-            <li>Local asset loading (styles.css)</li>
-            <li>CDN integration (Bootstrap and jQuery)</li>
-            <li>Asset versioning</li>
-            <li>Environment-aware resolution</li>
-        </ul>
-    </div>
+<div class="container mt-5">
+    <h1>Thymeleaf Asset Dialect Demo</h1>
+
+    <!--
+      The tad:src attribute works similarly for images.
+      It ensures that the most recent version of the image is served.
+    -->
+    <p><img tad:src="/image.jpg" alt="The TAD logo" width="150"></p>
+
+    <p class="custom-text">This page demonstrates the Asset Dialect's core features:</p>
+    <ul>
+        <li>
+            <strong>Local Asset Resolution:</strong>
+            The CSS, JavaScript, and image assets on this page are resolved locally.
+            The dialect automatically adds a version hash to the URL (e.g., <code>?v=...</code>)
+            to prevent browser caching issues when the file content changes.
+            View the page source to see the generated URLs.
+        </li>
+        <li>
+            <strong>CDN Integration:</strong>
+            You can configure the dialect to serve assets from a CDN.
+            To test this, open <code>src/main/resources/application.properties</code> and set the <code>tad.cdn-url</code>.
+            When set, all asset links will point to the CDN.
+        </li>
+        <li>
+            <strong>Environment-Aware:</strong>
+            The dialect's behavior changes based on the active Spring profile or environment properties,
+            allowing you to use local assets during development and CDN assets in production without changing your templates.
+        </li>
+    </ul>
+</div>
+
+<!--
+  The tad:src attribute is also used for JavaScript files.
+-->
+<script tad:src="/js/main.js"></script>
+
 </body>
 </html>
