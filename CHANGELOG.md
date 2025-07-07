@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `DefaultAssetResolver.resolve()` now validates all input paths and throws `IllegalArgumentException` for invalid paths
 - Enhanced security posture by rejecting malicious inputs instead of silent failures
+- Updated Spring Boot from 3.4.2 to 3.4.7 (security updates)
+- Updated logback-classic from 1.5.16 to 1.5.18 (vulnerability fix)
+- Updated JUnit Jupiter from 5.11.4 to 5.13.3
+- Updated Mockito from 5.15.2 to 5.18.0
 
 ### Technical Details
 - Added `isValidAssetPath()` method for comprehensive path validation
