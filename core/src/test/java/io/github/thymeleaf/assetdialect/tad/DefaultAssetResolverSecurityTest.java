@@ -7,6 +7,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.core.env.Environment;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +20,7 @@ import static org.mockito.Mockito.when;
  * and other security vulnerabilities are properly handled.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DefaultAssetResolverSecurityTest {
 
     @Mock
@@ -32,6 +35,7 @@ class DefaultAssetResolverSecurityTest {
         properties.setEnabled(true);
         properties.setAssetBasePath("src/test/resources/static");
         
+        // Mock environment to return empty profiles by default
         when(environment.getActiveProfiles()).thenReturn(new String[]{});
         
         resolver = new DefaultAssetResolver(properties, environment);
@@ -50,7 +54,7 @@ class DefaultAssetResolverSecurityTest {
         "..\\..\\..\\windows\\system32\\drivers\\etc\\hosts"
     })
     void shouldRejectPathTraversalAttempts(String maliciousPath) {
-        assertThatThrownBy(() -> resolver.resolve(maliciousPath))
+        assertThatThrownBy(() -> resolver.resolve(maliciousPath, null, false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid asset path");
     }
@@ -67,7 +71,7 @@ class DefaultAssetResolverSecurityTest {
         "carriage\rreturn.js"
     })
     void shouldRejectInvalidCharacters(String invalidPath) {
-        assertThatThrownBy(() -> resolver.resolve(invalidPath))
+        assertThatThrownBy(() -> resolver.resolve(invalidPath, null, false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid asset path");
     }
@@ -81,7 +85,7 @@ class DefaultAssetResolverSecurityTest {
         "\\windows\\system32\\drivers\\etc\\hosts"
     })
     void shouldRejectAbsolutePaths(String absolutePath) {
-        assertThatThrownBy(() -> resolver.resolve(absolutePath))
+        assertThatThrownBy(() -> resolver.resolve(absolutePath, null, false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid asset path");
     }
@@ -99,7 +103,7 @@ class DefaultAssetResolverSecurityTest {
         "backup.sql"
     })
     void shouldRejectDangerousFileExtensions(String dangerousFile) {
-        assertThatThrownBy(() -> resolver.resolve(dangerousFile))
+        assertThatThrownBy(() -> resolver.resolve(dangerousFile, null, false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid asset path");
     }
@@ -119,27 +123,27 @@ class DefaultAssetResolverSecurityTest {
     })
     void shouldAllowValidAssetPaths(String validPath) {
         // Should not throw exception for valid paths
-        String result = resolver.resolve(validPath);
+        String result = resolver.resolve(validPath, null, false);
         assertThat(result).isNotNull();
     }
 
     @Test
     void shouldHandleNullPath() {
-        assertThatThrownBy(() -> resolver.resolve(null))
+        assertThatThrownBy(() -> resolver.resolve(null, null, false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid asset path");
     }
 
     @Test
     void shouldHandleEmptyPath() {
-        assertThatThrownBy(() -> resolver.resolve(""))
+        assertThatThrownBy(() -> resolver.resolve("", null, false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid asset path");
     }
 
     @Test
     void shouldHandleWhitespaceOnlyPath() {
-        assertThatThrownBy(() -> resolver.resolve("   "))
+        assertThatThrownBy(() -> resolver.resolve("   ", null, false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid asset path");
     }
@@ -147,22 +151,23 @@ class DefaultAssetResolverSecurityTest {
     @Test
     void shouldAllowValidPathsWithSpaces() {
         String validPath = "my image.jpg";
-        String result = resolver.resolve(validPath);
+        String result = resolver.resolve(validPath, null, false);
         assertThat(result).isNotNull();
     }
 
     @Test
     void shouldAllowPathsWithoutExtensions() {
         String validPath = "favicon";
-        String result = resolver.resolve(validPath);
+        String result = resolver.resolve(validPath, null, false);
         assertThat(result).isNotNull();
     }
 
     @Test
     void shouldWorkWithCdnConfiguration() {
         properties.setDefaultCdn("https://cdn.example.com");
+        properties.setUseLocalInDev(false); // Disable local in dev to force CDN usage
         
-        String result = resolver.resolve("image.jpg");
+        String result = resolver.resolve("image.jpg", null, false);
         assertThat(result).startsWith("https://cdn.example.com");
     }
 
@@ -170,8 +175,9 @@ class DefaultAssetResolverSecurityTest {
     void shouldWorkWithLocalPathConfiguration() {
         properties.setLocalPath("/assets");
         properties.setUseLocalInDev(true);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
         
-        String result = resolver.resolve("image.jpg");
+        String result = resolver.resolve("image.jpg", null, false);
         assertThat(result).startsWith("/assets");
     }
 
@@ -181,7 +187,7 @@ class DefaultAssetResolverSecurityTest {
         
         // Even malicious paths should pass through when dialect is disabled
         String maliciousPath = "../../../etc/passwd";
-        String result = resolver.resolve(maliciousPath);
+        String result = resolver.resolve(maliciousPath, null, false);
         assertThat(result).isEqualTo(maliciousPath);
     }
 }

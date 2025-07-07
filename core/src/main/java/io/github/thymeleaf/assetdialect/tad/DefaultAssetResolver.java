@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Default implementation of AssetResolver.
@@ -81,7 +82,8 @@ public class DefaultAssetResolver implements AssetResolver {
 
     private String resolveCdnUrl(String cdnName) {
         if (StringUtils.hasText(cdnName)) {
-            return properties.getCdns().get(cdnName);
+            Map<String, String> cdns = properties.getCdns();
+            return cdns != null ? cdns.get(cdnName) : null;
         }
         return properties.getDefaultCdn();
     }
@@ -217,7 +219,7 @@ public class DefaultAssetResolver implements AssetResolver {
         }
         
         // Path should not be absolute (except for web root relative paths starting with /)
-        if (path.contains(":\\") || path.startsWith("\\\\")) {
+        if (path.contains(":\\") || path.startsWith("\\\\") || (path.startsWith("/") && path.length() > 1 && !path.startsWith("/static") && !path.startsWith("/assets"))) {
             logger.warn("Security violation: Absolute path detected - {}", path);
             return false;
         }
