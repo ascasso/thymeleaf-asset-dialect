@@ -28,6 +28,11 @@ public class DefaultAssetResolver implements AssetResolver {
             return path;
         }
 
+        // Validate input path for security
+        if (!isValidAssetPath(path)) {
+            throw new IllegalArgumentException("Invalid asset path: " + path);
+        }
+
         // Check if we should use local path
         if (shouldUseLocal(forceLocal)) {
             return resolveLocal(path);
@@ -117,6 +122,81 @@ public class DefaultAssetResolver implements AssetResolver {
             // If hash calculation fails, return null to skip versioning
         }
         return null;
+    }
+
+    /**
+     * Validates that an asset path is safe and doesn't contain path traversal sequences.
+     * 
+     * @param path The asset path to validate
+     * @return true if the path is valid, false otherwise
+     */
+    private boolean isValidAssetPath(String path) {
+        if (path == null || path.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Check for path traversal sequences
+        if (containsPathTraversalSequences(path)) {
+            return false;
+        }
+        
+        // Check for invalid characters
+        if (containsInvalidCharacters(path)) {
+            return false;
+        }
+        
+        // Path should not be absolute (except for web root relative paths starting with /)
+        if (path.contains(":\\") || path.startsWith("\\\\")) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Checks if the path contains path traversal sequences.
+     */
+    private boolean containsPathTraversalSequences(String path) {
+        // Normalize the path to handle different encodings
+        String normalizedPath = path.toLowerCase();
+        
+        // Check for various path traversal patterns
+        String[] traversalPatterns = {
+            "../", "..\\", "..",
+            "%2e%2e/", "%2e%2e\\", "%2e%2e",
+            "..%2f", "..%5c",
+            "%2e%2e%2f", "%2e%2e%5c",
+            "....//", "....\\\\",
+            "..%252f", "..%255c"
+        };
+        
+        for (String pattern : traversalPatterns) {
+            if (normalizedPath.contains(pattern)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Checks if the path contains invalid characters.
+     */
+    private boolean containsInvalidCharacters(String path) {
+        // Check for null bytes and other control characters
+        if (path.contains("\0") || path.contains("\r") || path.contains("\n")) {
+            return true;
+        }
+        
+        // Check for other potentially dangerous characters
+        char[] invalidChars = {'<', '>', '"', '|', '?', '*'};
+        for (char c : invalidChars) {
+            if (path.indexOf(c) >= 0) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     private String combinePaths(String base, String path) {
