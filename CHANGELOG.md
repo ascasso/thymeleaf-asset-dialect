@@ -33,4 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `isValidAssetPath()` method for comprehensive path validation
 - Added `containsPathTraversalSequences()` method to detect various traversal patterns
 - Added `containsInvalidCharacters()` method to filter dangerous characters
+- Added `hasValidFileExtension()` method with whitelist of approved file extensions
+- Added `securePathResolution()` method for safe path normalization
+- Added `isPathContainedWithin()` method to verify paths stay within allowed directories
+- Added configurable `assetBasePath` property to replace hardcoded paths
+- Added comprehensive security logging for all validation failures
+- Added `DefaultAssetResolverSecurityTest` with 50+ security test cases
 - All validation happens before any file system operations

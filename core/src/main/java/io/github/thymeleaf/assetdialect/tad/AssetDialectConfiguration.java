@@ -13,4 +13,5 @@ public interface AssetDialectConfiguration {
     boolean isUseLocalInDev();
     boolean isVersionAssets();
     String getVersionStrategy();
+    String getAssetBasePath();
 }

@@ -15,6 +15,7 @@ public class DefaultAssetDialectConfiguration implements AssetDialectConfigurati
     private boolean useLocalInDev = true;
     private boolean versionAssets = true;
     private String versionStrategy = "hash";
+    private String assetBasePath = "src/main/resources/static";
 
     @Override
     public boolean isEnabled() {
@@ -79,6 +80,15 @@ public class DefaultAssetDialectConfiguration implements AssetDialectConfigurati
         this.versionStrategy = versionStrategy;
     }
 
+    @Override
+    public String getAssetBasePath() {
+        return assetBasePath;
+    }
+
+    public void setAssetBasePath(String assetBasePath) {
+        this.assetBasePath = assetBasePath;
+    }
+
     /**
      * Creates a new builder for DefaultAssetDialectConfiguration.
      *
@@ -131,6 +141,11 @@ public class DefaultAssetDialectConfiguration implements AssetDialectConfigurati
 
         public Builder versionStrategy(String versionStrategy) {
             instance.setVersionStrategy(versionStrategy);
+            return this;
+        }
+
+        public Builder assetBasePath(String assetBasePath) {
+            instance.setAssetBasePath(assetBasePath);
             return this;
         }
 
