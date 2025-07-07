@@ -17,6 +17,7 @@ public class AssetProperties implements AssetDialectConfiguration {
     private boolean useLocalInDev = true;
     private boolean versionAssets = true;
     private String versionStrategy = "hash"; // or "timestamp"
+    private String assetBasePath = "src/main/resources/static"; // Base path for asset resolution
 
     // Getters and setters
     public boolean isEnabled() {
@@ -73,5 +74,13 @@ public class AssetProperties implements AssetDialectConfiguration {
 
     public void setVersionStrategy(String versionStrategy) {
         this.versionStrategy = versionStrategy;
+    }
+
+    public String getAssetBasePath() {
+        return assetBasePath;
+    }
+
+    public void setAssetBasePath(String assetBasePath) {
+        this.assetBasePath = assetBasePath;
     }
 }
