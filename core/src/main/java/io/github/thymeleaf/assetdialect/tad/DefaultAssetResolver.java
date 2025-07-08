@@ -6,6 +6,7 @@ import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.InvalidPathException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,6 +38,8 @@ public class DefaultAssetResolver implements AssetResolver {
             logger.warn("Security violation: Invalid asset path detected - {}", path);
             throw new IllegalArgumentException("Invalid asset path: " + path);
         }
+
+        
 
         // Check if we should use local path
         if (shouldUseLocal(forceLocal)) {
@@ -113,33 +116,48 @@ public class DefaultAssetResolver implements AssetResolver {
 
     private String calculateFileHash(String path) {
         try {
-            // Validate and normalize the path securely
-            Path normalizedPath = securePathResolution(path);
-            if (normalizedPath == null) {
-                return null;
-            }
-            
-            // Use the configurable base path instead of hardcoded path
+            // The 'path' here is a web-facing path (e.g., "/assets/test.css" or "image.jpg").
+            // We need to convert it to a file system path relative to assetBasePath.
+
             String configuredBasePath = properties.getAssetBasePath();
             Path basePath = Paths.get(configuredBasePath).normalize();
-            Path filePath = basePath.resolve(normalizedPath).normalize();
-            
+
+            // If the path starts with the localPath (e.g., "/assets"), remove it.
+            // Otherwise, assume it's directly relative to the assetBasePath.
+            String cleanPath = path;
+            String localPathPrefix = properties.getLocalPath();
+            if (StringUtils.hasText(localPathPrefix) && path.startsWith(localPathPrefix)) {
+                cleanPath = path.substring(localPathPrefix.length());
+            }
+            // Remove leading slash if present after localPathPrefix removal
+            if (cleanPath.startsWith("/")) {
+                cleanPath = cleanPath.substring(1);
+            }
+
+            Path relativeAssetPath = Paths.get(cleanPath).normalize();
+
+            // Ensure no path traversal in the relative asset path itself
+            if (relativeAssetPath.toString().contains("..")) {
+                logger.error("Security violation: Path traversal attempt detected in cleanPath - {}", cleanPath);
+                throw new SecurityException("Path traversal attempt detected: " + cleanPath);
+            }
+
+            Path filePath = basePath.resolve(relativeAssetPath).normalize();
+
             // Ensure the resolved path stays within the base directory
             if (!isPathContainedWithin(filePath, basePath)) {
-                logger.error("Security violation: Path traversal attempt detected - {} resolved to {}", 
+                logger.error("Security violation: Path traversal attempt detected - {} resolved to {}",
                            path, filePath.toString());
                 throw new SecurityException("Path traversal attempt detected: " + path);
             }
-            
+
             if (Files.exists(filePath)) {
                 byte[] content = Files.readAllBytes(filePath);
                 return DigestUtils.md5DigestAsHex(content);
             }
         } catch (SecurityException e) {
-            // Re-throw security exceptions to prevent silent failures
             throw e;
         } catch (Exception e) {
-            // Log other exceptions for debugging but don't expose details
             logger.debug("Failed to calculate hash for asset path: {}", path, e);
         }
         return null;
@@ -197,28 +215,48 @@ public class DefaultAssetResolver implements AssetResolver {
         if (path == null || path.trim().isEmpty()) {
             return false;
         }
-        
+
         // Check for path traversal sequences
         if (containsPathTraversalSequences(path)) {
             logger.warn("Security violation: Path traversal sequence detected in path - {}", path);
             return false;
         }
-        
+
         // Check for invalid characters
         if (containsInvalidCharacters(path)) {
             logger.warn("Security violation: Invalid characters detected in path - {}", path);
             return false;
         }
-        
+
         // Validate file extension against whitelist
         if (!hasValidFileExtension(path)) {
             logger.warn("Security violation: Invalid file extension detected in path - {}", path);
             return false;
         }
-        
-        // Path should not be absolute (except for web root relative paths starting with /)
-        if (path.contains(":\\") || path.startsWith("\\\\")) {
-            logger.warn("Security violation: Absolute path detected - {}", path);
+
+        // Reject absolute system paths (Windows and Unix-like)
+        try {
+            Path p = Paths.get(path);
+            if (p.isAbsolute()) {
+                // If it's an absolute path, and it doesn't start with a forward slash,
+                // it's likely a Windows absolute path (e.g., C:\...). Reject it.
+                if (!path.startsWith("/")) {
+                    logger.warn("Security violation: Absolute system path detected (Windows-style) - {}", path);
+                    return false;
+                }
+                // If it starts with a forward slash, it's a Unix-like absolute path.
+                // Reject common Unix system paths.
+                if (path.equals("/etc") || path.startsWith("/etc/") ||
+                    path.equals("/bin") || path.startsWith("/bin/") ||
+                    path.equals("/usr") || path.startsWith("/usr/") ||
+                    path.equals("/root") || path.startsWith("/root/") ||
+                    path.equals("/etc/passwd")) {
+                    logger.warn("Security violation: Common Unix system path detected - {}", path);
+                    return false;
+                }
+            }
+        } catch (InvalidPathException e) {
+            logger.warn("Security violation: Invalid path format detected - {}", path, e);
             return false;
         }
         

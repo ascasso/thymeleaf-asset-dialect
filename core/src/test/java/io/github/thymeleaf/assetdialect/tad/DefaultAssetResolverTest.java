@@ -68,7 +68,8 @@ class DefaultAssetResolverTest {
         when(properties.isEnabled()).thenReturn(true);
         when(properties.isVersionAssets()).thenReturn(true);
         when(properties.getVersionStrategy()).thenReturn("hash");
-        when(properties.getLocalPath()).thenReturn("src/test/resources/static");
+        when(properties.getAssetBasePath()).thenReturn("src/test/resources/static");
+        when(properties.getLocalPath()).thenReturn("/assets");
         when(properties.isUseLocalInDev()).thenReturn(true);
         when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
 
