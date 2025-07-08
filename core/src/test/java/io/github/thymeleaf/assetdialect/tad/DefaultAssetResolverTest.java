@@ -78,9 +78,11 @@ class DefaultAssetResolverTest {
         // Test with a simple path
         String resolvedPath = resolver.resolve("test.css", null, true);
         
-        // Since the file doesn't exist, it should fallback to timestamp or no version
-        // Just verify it doesn't throw an exception and returns a path
-        assertThat(resolvedPath).isNotNull().startsWith("src/test/resources/static");
+        // When forceLocal=true, should use localPath (/assets) not assetBasePath
+        // Since the file doesn't exist, hash calculation fails and version is added
+        assertThat(resolvedPath).isNotNull().startsWith("/assets");
+        assertThat(resolvedPath).contains("test");
+        assertThat(resolvedPath).contains(".css");
     }
     @Test
     void shouldDefaultToCurrentTimestampWhenHashFails() {
