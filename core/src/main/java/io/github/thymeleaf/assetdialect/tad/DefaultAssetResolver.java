@@ -10,6 +10,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Default implementation of AssetResolver.
@@ -84,7 +85,8 @@ public class DefaultAssetResolver implements AssetResolver {
 
     private String resolveCdnUrl(String cdnName) {
         if (StringUtils.hasText(cdnName)) {
-            return properties.getCdns().get(cdnName);
+            Map<String, String> cdns = properties.getCdns();
+            return cdns != null ? cdns.get(cdnName) : null;
         }
         return properties.getDefaultCdn();
     }
@@ -257,6 +259,7 @@ public class DefaultAssetResolver implements AssetResolver {
             }
         } catch (InvalidPathException e) {
             logger.warn("Security violation: Invalid path format detected - {}", path, e);
+
             return false;
         }
         
