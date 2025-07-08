@@ -61,3 +61,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Converting `assertThatThrownBy` assertions to `try-catch` blocks with `Assertions.fail()` for more robust exception testing.
     - Fixed compilation errors in `DefaultAssetResolverSecurityTest` by correctly escaping backslashes in `@ValueSource` annotations.
     - Enabled standard stream logging for Gradle tests in `core/build.gradle` to aid debugging.
+
+## [0.0.3] - 2025-07-07
