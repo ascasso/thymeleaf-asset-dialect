@@ -6,13 +6,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.core.env.Environment;
 
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 /**
@@ -26,18 +30,17 @@ class DefaultAssetResolverSecurityTest {
     @Mock
     private Environment environment;
 
+    @Mock
     private AssetProperties properties;
     private DefaultAssetResolver resolver;
 
     @BeforeEach
     void setUp() {
-        properties = new AssetProperties();
-        properties.setEnabled(true);
-        properties.setAssetBasePath("src/test/resources/static");
-        
-        // Mock environment to return empty profiles by default
-        when(environment.getActiveProfiles()).thenReturn(new String[]{});
-        
+
+        MockitoAnnotations.openMocks(this);
+        // Only stub essential properties that are always accessed
+        when(properties.isEnabled()).thenReturn(true);
+
         resolver = new DefaultAssetResolver(properties, environment);
     }
 
@@ -54,9 +57,14 @@ class DefaultAssetResolverSecurityTest {
         "..\\..\\..\\windows\\system32\\drivers\\etc\\hosts"
     })
     void shouldRejectPathTraversalAttempts(String maliciousPath) {
-        assertThatThrownBy(() -> resolver.resolve(maliciousPath, null, false))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Invalid asset path");
+
+        try {
+            resolver.resolve(maliciousPath);
+            org.junit.jupiter.api.Assertions.fail("Expected IllegalArgumentException for " + maliciousPath);
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Invalid asset path");
+        }
+
     }
 
     @ParameterizedTest
@@ -71,9 +79,14 @@ class DefaultAssetResolverSecurityTest {
         "carriage\rreturn.js"
     })
     void shouldRejectInvalidCharacters(String invalidPath) {
-        assertThatThrownBy(() -> resolver.resolve(invalidPath, null, false))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Invalid asset path");
+
+        try {
+            resolver.resolve(invalidPath);
+            org.junit.jupiter.api.Assertions.fail("Expected IllegalArgumentException for " + invalidPath);
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Invalid asset path");
+        }
+
     }
 
     @ParameterizedTest
@@ -85,9 +98,14 @@ class DefaultAssetResolverSecurityTest {
         "\\windows\\system32\\drivers\\etc\\hosts"
     })
     void shouldRejectAbsolutePaths(String absolutePath) {
-        assertThatThrownBy(() -> resolver.resolve(absolutePath, null, false))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Invalid asset path");
+
+        try {
+            resolver.resolve(absolutePath);
+            org.junit.jupiter.api.Assertions.fail("Expected IllegalArgumentException for " + absolutePath);
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Invalid asset path");
+        }
+
     }
 
     @ParameterizedTest
@@ -103,9 +121,14 @@ class DefaultAssetResolverSecurityTest {
         "backup.sql"
     })
     void shouldRejectDangerousFileExtensions(String dangerousFile) {
-        assertThatThrownBy(() -> resolver.resolve(dangerousFile, null, false))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Invalid asset path");
+
+        try {
+            resolver.resolve(dangerousFile);
+            org.junit.jupiter.api.Assertions.fail("Expected IllegalArgumentException for " + dangerousFile);
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Invalid asset path");
+        }
+
     }
 
     @ParameterizedTest
@@ -129,23 +152,38 @@ class DefaultAssetResolverSecurityTest {
 
     @Test
     void shouldHandleNullPath() {
-        assertThatThrownBy(() -> resolver.resolve(null, null, false))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Invalid asset path");
+
+        try {
+            resolver.resolve(null);
+            org.junit.jupiter.api.Assertions.fail("Expected IllegalArgumentException for null path");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Invalid asset path");
+        }
+
     }
 
     @Test
     void shouldHandleEmptyPath() {
-        assertThatThrownBy(() -> resolver.resolve("", null, false))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Invalid asset path");
+
+        try {
+            resolver.resolve("");
+            org.junit.jupiter.api.Assertions.fail("Expected IllegalArgumentException for empty path");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Invalid asset path");
+        }
+
     }
 
     @Test
     void shouldHandleWhitespaceOnlyPath() {
-        assertThatThrownBy(() -> resolver.resolve("   ", null, false))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Invalid asset path");
+
+        try {
+            resolver.resolve("   ");
+            org.junit.jupiter.api.Assertions.fail("Expected IllegalArgumentException for whitespace only path");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Invalid asset path");
+        }
+      
     }
 
     @Test
@@ -164,26 +202,30 @@ class DefaultAssetResolverSecurityTest {
 
     @Test
     void shouldWorkWithCdnConfiguration() {
-        properties.setDefaultCdn("https://cdn.example.com");
-        properties.setUseLocalInDev(false); // Disable local in dev to force CDN usage
-        
-        String result = resolver.resolve("image.jpg", null, false);
+
+        when(properties.getDefaultCdn()).thenReturn("https://cdn.example.com");
+        when(properties.isVersionAssets()).thenReturn(false);
+
+        String result = resolver.resolve("image.jpg");
+
         assertThat(result).startsWith("https://cdn.example.com");
     }
 
     @Test
     void shouldWorkWithLocalPathConfiguration() {
-        properties.setLocalPath("/assets");
-        properties.setUseLocalInDev(true);
-        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
-        
-        String result = resolver.resolve("image.jpg", null, false);
+
+        when(properties.getLocalPath()).thenReturn("/assets");
+        when(properties.isUseLocalInDev()).thenReturn(true);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"}); // Ensure dev profile is active
+
+        String result = resolver.resolve("image.jpg");
+
         assertThat(result).startsWith("/assets");
     }
 
     @Test
     void shouldDisableSecurityWhenDialectDisabled() {
-        properties.setEnabled(false);
+        when(properties.isEnabled()).thenReturn(false);
         
         // Even malicious paths should pass through when dialect is disabled
         String maliciousPath = "../../../etc/passwd";
