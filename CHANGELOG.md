@@ -61,3 +61,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Converting `assertThatThrownBy` assertions to `try-catch` blocks with `Assertions.fail()` for more robust exception testing.
     - Fixed compilation errors in `DefaultAssetResolverSecurityTest` by correctly escaping backslashes in `@ValueSource` annotations.
     - Enabled standard stream logging for Gradle tests in `core/build.gradle` to aid debugging.
+
+## [0.0.3] - 2025-07-07
+
+### Changed
+- **Test Modernization**:
+  - Replaced verbose try-catch blocks with AssertJ's `assertThatThrownBy` for cleaner and more consistent exception testing
+  - Removed redundant `MockitoAnnotations` setup in test classes
+  - Improved test readability and maintainability while preserving all test functionality
+  - Cleaned up inconsistent imports and dependencies in test files
+  - Streamlined test assertion patterns for better consistency across the codebase
+
+### Technical Details
+- Updated `DefaultAssetResolverSecurityTest` to use modern AssertJ fluent assertions
+- Updated `DefaultAssetResolverTest` to use simplified assertion patterns
+- Removed unnecessary test setup overhead while maintaining comprehensive test coverage
