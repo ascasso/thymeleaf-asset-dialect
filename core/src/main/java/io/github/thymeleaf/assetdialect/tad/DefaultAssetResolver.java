@@ -149,7 +149,7 @@ public class DefaultAssetResolver implements AssetResolver {
             // Ensure the resolved path stays within the base directory
             if (!isPathContainedWithin(filePath, basePath)) {
                 logger.error("Security violation: Path traversal attempt detected - {} resolved to {}",
-                           path, filePath.toString());
+                           path, filePath);
                 throw new SecurityException("Path traversal attempt detected: " + path);
             }
 
@@ -163,31 +163,6 @@ public class DefaultAssetResolver implements AssetResolver {
             logger.debug("Failed to calculate hash for asset path: {}", path, e);
         }
         return null;
-    }
-    
-    /**
-     * Securely resolves a path by normalizing it and validating it doesn't escape boundaries.
-     */
-    private Path securePathResolution(String inputPath) {
-        try {
-            // Remove leading slash and normalize
-            String cleanPath = inputPath.startsWith("/") ? inputPath.substring(1) : inputPath;
-            Path path = Paths.get(cleanPath).normalize();
-            
-            // Check if the normalized path contains any parent directory references
-            if (path.toString().contains("..")) {
-                return null;
-            }
-            
-            // Ensure the path is not absolute after normalization
-            if (path.isAbsolute()) {
-                return null;
-            }
-            
-            return path;
-        } catch (Exception e) {
-            return null;
-        }
     }
     
     /**
