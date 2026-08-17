@@ -16,7 +16,7 @@ Based on my analysis of the codebase and documentation, here is my assessment:
 
 ### Code and Documentation Consistency
 
-The code is highly consistent with the documentation (`README.md`, `CHANGELOG.md`, `CLAUDE.md`, `NOTES.md`, and `PLAN.md`). The documented security features, such as path traversal protection, input validation, and file extension whitelisting, are implemented in the `core` module, primarily within the `DefaultAssetResolver.java` class.
+The code is highly consistent with the documentation (`README.md`, `CHANGELOG.md`, `AGENTS.md`, `NOTES.md`, and `PLAN.md`). The documented security features, such as path traversal protection, input validation, and file extension whitelisting, are implemented in the `core` module, primarily within the `DefaultAssetResolver.java` class.
 
 The security test suite (`DefaultAssetResolverSecurityTest.java`) is comprehensive and validates the effectiveness of the security measures described in the documentation.
 

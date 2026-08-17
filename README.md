@@ -18,16 +18,20 @@ A secure Thymeleaf dialect that simplifies asset management in web applications,
 
 ```html
 <!-- Basic usage -->
-<img src="/images/logo.png" asset:src/>
+<img src="/images/logo.png" tad:src/>
 <!-- Becomes: <img src="https://assets.example.com/images/logo.123abc.png"/> -->
 
 <!-- With specific CDN -->
-<img src="/images/logo.png" asset:src asset:cdn="images"/>
+<img src="/images/logo.png" tad:src tad:cdn="images"/>
 <!-- Becomes: <img src="https://img.example.com/images/logo.123abc.png"/> -->
 
 <!-- Force local -->
-<img src="/images/logo.png" asset:src asset:local="true"/>
+<img src="/images/logo.png" tad:src tad:local="true"/>
 <!-- Becomes: <img src="/static/images/logo.png"/> -->
+
+<!-- Stylesheet usage -->
+<link rel="stylesheet" tad:href="/css/styles.css"/>
+<!-- Becomes: <link rel="stylesheet" href="/static/css/styles.123abc.css"/> -->
 ```
 
 ## Configuration

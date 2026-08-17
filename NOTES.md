@@ -23,7 +23,7 @@ Instead of writing:
 <img src="https://cdn.example.com/images/logo.123abc.png"/>
 
 Developers write:
-<img src="/images/logo.png" asset:src/>
+<img src="/images/logo.png" tad:src/>
 
 The dialect automatically:
 - Resolves the appropriate CDN URL based on configuration
