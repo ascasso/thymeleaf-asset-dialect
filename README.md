@@ -102,6 +102,12 @@ DefaultAssetDialectConfiguration config = DefaultAssetDialectConfiguration.build
 ./gradlew :sample:bootRun
 ```
 
+## Development requirements
+
+- Java 25
+- Gradle 9.7.0 via the included wrapper
+- Spring Boot 4.1.0 for the sample application
+
 ## Building and Testing
 
 ```bash
