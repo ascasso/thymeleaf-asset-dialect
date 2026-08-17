@@ -156,8 +156,15 @@ public class DefaultAssetResolver implements AssetResolver {
             }
 
             // A missing asset has no content to hash; return an unversioned URL without
-            // reporting it as a path-containment violation.
+            // reporting it as a path-containment violation. Existing non-regular paths
+            // still need canonical containment validation because they may be symlinks
+            // that resolve outside the asset base.
             if (!Files.isRegularFile(filePath)) {
+                if (Files.exists(filePath) && !isPathContainedWithin(filePath, basePath)) {
+                    logger.error("Security violation: Path traversal attempt detected - {} resolved to {}",
+                               path, filePath);
+                    throw new SecurityException("Path traversal attempt detected: " + path);
+                }
                 return null;
             }
 

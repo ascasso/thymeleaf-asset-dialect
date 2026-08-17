@@ -200,6 +200,20 @@ class DefaultAssetResolverSecurityTest {
     }
 
     @Test
+    void shouldRejectAssetSymlinkedToDirectoryOutsideConfiguredBasePath(@TempDir Path temporaryDirectory) throws IOException {
+        Path assetBasePath = Files.createDirectory(temporaryDirectory.resolve("assets"));
+        Path directoryOutsideAssetBasePath = Files.createDirectory(temporaryDirectory.resolve("outside"));
+        Files.createSymbolicLink(assetBasePath.resolve("linked.css"), directoryOutsideAssetBasePath);
+        when(properties.isVersionAssets()).thenReturn(true);
+        when(properties.getVersionStrategy()).thenReturn("hash");
+        when(properties.getAssetBasePath()).thenReturn(assetBasePath.toString());
+
+        assertThatThrownBy(() -> resolver.resolve("linked.css", null, true))
+            .isInstanceOf(SecurityException.class)
+            .hasMessageContaining("Path traversal attempt detected");
+    }
+
+    @Test
     void shouldDisableSecurityWhenDialectDisabled() {
         when(properties.isEnabled()).thenReturn(false);
         
