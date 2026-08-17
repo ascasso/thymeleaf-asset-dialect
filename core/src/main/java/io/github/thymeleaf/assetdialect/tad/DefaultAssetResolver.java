@@ -1,13 +1,13 @@
 package io.github.thymeleaf.assetdialect.tad;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.nio.file.InvalidPathException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -109,6 +109,8 @@ public class DefaultAssetResolver implements AssetResolver {
                 String basePath = StringUtils.stripFilenameExtension(path);
                 return basePath + "." + version + (extension != null ? "." + extension : "");
             }
+        } catch (SecurityException e) {
+            throw e;
         } catch (Exception e) {
             // If versioning fails, return original path
         }
@@ -122,7 +124,7 @@ public class DefaultAssetResolver implements AssetResolver {
             // We need to convert it to a file system path relative to assetBasePath.
 
             String configuredBasePath = properties.getAssetBasePath();
-            Path basePath = Paths.get(configuredBasePath).normalize();
+            Path basePath = Paths.get(configuredBasePath).toAbsolutePath().normalize();
 
             // If the path starts with the localPath (e.g., "/assets"), remove it.
             // Otherwise, assume it's directly relative to the assetBasePath.
@@ -146,17 +148,35 @@ public class DefaultAssetResolver implements AssetResolver {
 
             Path filePath = basePath.resolve(relativeAssetPath).normalize();
 
-            // Ensure the resolved path stays within the base directory
-            if (!isPathContainedWithin(filePath, basePath)) {
+            // Reject lexical traversal before performing any file system operation.
+            if (!filePath.startsWith(basePath)) {
                 logger.error("Security violation: Path traversal attempt detected - {} resolved to {}",
-                           path, filePath.toString());
+                           path, filePath);
                 throw new SecurityException("Path traversal attempt detected: " + path);
             }
 
-            if (Files.exists(filePath)) {
-                byte[] content = Files.readAllBytes(filePath);
-                return DigestUtils.md5DigestAsHex(content);
+            // A missing asset has no content to hash; return an unversioned URL without
+            // reporting it as a path-containment violation. Existing non-regular paths
+            // still need canonical containment validation because they may be symlinks
+            // that resolve outside the asset base.
+            if (!Files.isRegularFile(filePath)) {
+                if (Files.exists(filePath) && !isPathContainedWithin(filePath, basePath)) {
+                    logger.error("Security violation: Path traversal attempt detected - {} resolved to {}",
+                               path, filePath);
+                    throw new SecurityException("Path traversal attempt detected: " + path);
+                }
+                return null;
             }
+
+            // Resolve existing files canonically so symlinks cannot escape the asset base.
+            if (!isPathContainedWithin(filePath, basePath)) {
+                logger.error("Security violation: Path traversal attempt detected - {} resolved to {}",
+                           path, filePath);
+                throw new SecurityException("Path traversal attempt detected: " + path);
+            }
+
+            byte[] content = Files.readAllBytes(filePath);
+            return DigestUtils.md5DigestAsHex(content);
         } catch (SecurityException e) {
             throw e;
         } catch (Exception e) {
@@ -166,36 +186,12 @@ public class DefaultAssetResolver implements AssetResolver {
     }
     
     /**
-     * Securely resolves a path by normalizing it and validating it doesn't escape boundaries.
-     */
-    private Path securePathResolution(String inputPath) {
-        try {
-            // Remove leading slash and normalize
-            String cleanPath = inputPath.startsWith("/") ? inputPath.substring(1) : inputPath;
-            Path path = Paths.get(cleanPath).normalize();
-            
-            // Check if the normalized path contains any parent directory references
-            if (path.toString().contains("..")) {
-                return null;
-            }
-            
-            // Ensure the path is not absolute after normalization
-            if (path.isAbsolute()) {
-                return null;
-            }
-            
-            return path;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-    
-    /**
      * Verifies that a resolved path stays within the allowed base directory.
      */
     private boolean isPathContainedWithin(Path resolvedPath, Path basePath) {
         try {
-            // Get the canonical paths to handle symlinks and normalize
+            // Get the canonical paths to handle symlinks and normalize.
+            // Callers check that the candidate is an existing regular file first.
             Path canonicalResolved = resolvedPath.toRealPath();
             Path canonicalBase = basePath.toRealPath();
             

@@ -24,6 +24,7 @@ public class AssetDialect extends AbstractProcessorDialect {
     public Set<IProcessor> getProcessors(final String dialectPrefix) {
         final Set<IProcessor> processors = new HashSet<>();
         processors.add(new AssetProcessor(dialectPrefix, resolver));
+        processors.add(new AssetProcessor(dialectPrefix, "href", resolver));
         return processors;
     }
 }

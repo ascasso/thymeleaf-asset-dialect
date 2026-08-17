@@ -23,7 +23,7 @@ Instead of writing:
 <img src="https://cdn.example.com/images/logo.123abc.png"/>
 
 Developers write:
-<img src="/images/logo.png" asset:src/>
+<img src="/images/logo.png" tad:src/>
 
 The dialect automatically:
 - Resolves the appropriate CDN URL based on configuration
@@ -41,15 +41,13 @@ Target Use Cases:
 This is a very practical tool for production web applications where asset delivery performance and cache
 management are important concerns.
 
-## Security issues
+## Security protections
 
-Specific Security Issues:
+The resolver validates asset paths before file-system access. It rejects path-traversal sequences,
+invalid characters, unsafe extensions, and absolute system paths. Hashing is constrained to the
+configured `assetBasePath`; canonical containment checks also reject asset symlinks that resolve
+outside that directory.
 
-1. Insufficient Path Validation: The code only calls getFileName() but doesn't validate the input path for
-   malicious sequences
-2. Path Traversal Sequences: Malicious inputs like ../../../etc/passwd or
-   ..\\..\\windows\\system32\\config\\sam could potentially be processed
-3. Directory Traversal: Even though getFileName() extracts the filename, the original normalizedPath is
-   used to create the Path object, which could contain traversal sequences
-4. Hardcoded Base Path: The hardcoded "src/test/resources/static" path is problematic and not
-   production-ready
+Missing assets remain unversioned because no content is available to hash. They are not treated as
+path-traversal attempts. The security regression tests cover malicious path input and symlink
+containment.

@@ -1,6 +1,7 @@
 package io.github.thymeleaf.assetdialect.tad;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.HashMap;
 import java.util.Map;
 

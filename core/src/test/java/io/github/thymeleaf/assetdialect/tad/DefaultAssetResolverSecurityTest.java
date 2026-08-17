@@ -5,15 +5,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.core.env.Environment;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 /**
@@ -179,6 +183,34 @@ class DefaultAssetResolverSecurityTest {
         String result = resolver.resolve("image.jpg");
         
         assertThat(result).startsWith("/assets");
+    }
+
+    @Test
+    void shouldRejectAssetSymlinkedOutsideConfiguredBasePath(@TempDir Path temporaryDirectory) throws IOException {
+        Path assetBasePath = Files.createDirectory(temporaryDirectory.resolve("assets"));
+        Path fileOutsideAssetBasePath = Files.writeString(temporaryDirectory.resolve("outside.css"), "body {}");
+        Files.createSymbolicLink(assetBasePath.resolve("linked.css"), fileOutsideAssetBasePath);
+        when(properties.isVersionAssets()).thenReturn(true);
+        when(properties.getVersionStrategy()).thenReturn("hash");
+        when(properties.getAssetBasePath()).thenReturn(assetBasePath.toString());
+
+        assertThatThrownBy(() -> resolver.resolve("linked.css", null, true))
+            .isInstanceOf(SecurityException.class)
+            .hasMessageContaining("Path traversal attempt detected");
+    }
+
+    @Test
+    void shouldRejectAssetSymlinkedToDirectoryOutsideConfiguredBasePath(@TempDir Path temporaryDirectory) throws IOException {
+        Path assetBasePath = Files.createDirectory(temporaryDirectory.resolve("assets"));
+        Path directoryOutsideAssetBasePath = Files.createDirectory(temporaryDirectory.resolve("outside"));
+        Files.createSymbolicLink(assetBasePath.resolve("linked.css"), directoryOutsideAssetBasePath);
+        when(properties.isVersionAssets()).thenReturn(true);
+        when(properties.getVersionStrategy()).thenReturn("hash");
+        when(properties.getAssetBasePath()).thenReturn(assetBasePath.toString());
+
+        assertThatThrownBy(() -> resolver.resolve("linked.css", null, true))
+            .isInstanceOf(SecurityException.class)
+            .hasMessageContaining("Path traversal attempt detected");
     }
 
     @Test

@@ -18,16 +18,20 @@ A secure Thymeleaf dialect that simplifies asset management in web applications,
 
 ```html
 <!-- Basic usage -->
-<img src="/images/logo.png" asset:src/>
+<img src="/images/logo.png" tad:src/>
 <!-- Becomes: <img src="https://assets.example.com/images/logo.123abc.png"/> -->
 
 <!-- With specific CDN -->
-<img src="/images/logo.png" asset:src asset:cdn="images"/>
+<img src="/images/logo.png" tad:src tad:cdn="images"/>
 <!-- Becomes: <img src="https://img.example.com/images/logo.123abc.png"/> -->
 
 <!-- Force local -->
-<img src="/images/logo.png" asset:src asset:local="true"/>
+<img src="/images/logo.png" tad:src tad:local="true"/>
 <!-- Becomes: <img src="/static/images/logo.png"/> -->
+
+<!-- Stylesheet usage -->
+<link rel="stylesheet" tad:href="/css/styles.css"/>
+<!-- Becomes: <link rel="stylesheet" href="/static/css/styles.123abc.css"/> -->
 ```
 
 ## Configuration
@@ -102,6 +106,12 @@ DefaultAssetDialectConfiguration config = DefaultAssetDialectConfiguration.build
 ./gradlew :sample:bootRun
 ```
 
+## Development requirements
+
+- Java 25
+- Gradle 9.7.0 via the included wrapper
+- Spring Boot 4.1.0 for the sample application
+
 ## Building and Testing
 
 ```bash
@@ -114,3 +124,9 @@ DefaultAssetDialectConfiguration config = DefaultAssetDialectConfiguration.build
 # Run security-specific tests
 ./gradlew :core:test --tests "*SecurityTest"
 ```
+
+## Publishing
+
+Publishing credentials and signing keys are not stored in this repository. Maintainers must provide
+`ossrhUsername`, `ossrhPassword`, `signingKey`, and `signingPassword` through their Gradle user
+properties or `-P` command-line properties.
