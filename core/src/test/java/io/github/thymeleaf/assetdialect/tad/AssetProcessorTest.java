@@ -2,8 +2,9 @@ package io.github.thymeleaf.assetdialect.tad;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.engine.AttributeName;
 import org.thymeleaf.model.IAttribute;
@@ -12,6 +13,7 @@ import org.thymeleaf.processor.element.IElementTagStructureHandler;
 
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class AssetProcessorTest {
 
     @Mock
@@ -27,7 +29,6 @@ class AssetProcessorTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         processor = new AssetProcessor("asset", resolver);
     }
 

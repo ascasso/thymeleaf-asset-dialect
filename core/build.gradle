@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'io.github.thymeleaf.assetdialect'
-version = '0.0.3-SNAPSHOT'
+version = '0.1.0-SNAPSHOT'
 
 java {
     toolchain {
@@ -57,9 +57,9 @@ publishing {
         create('maven', MavenPublication) {
             from components.java
             pom {
-                name = 'Thymeleaf Asset Manager'
+                name = 'Thymeleaf Asset Dialect'
                 description = 'A Thymeleaf dialect for managing static assets with CDN support'
-                url = 'https://github.com/ascasso/thymeleaf-asset-manager'
+                url = 'https://github.com/ascasso/thymeleaf-asset-dialect'
 
                 licenses {
                     license {
@@ -110,5 +110,5 @@ signing {
 }
 
 tasks.withType(Sign).configureEach {
-    onlyIf { project.hasProperty('signingKey') }
+    onlyIf { signingKey && signingPassword }
 }

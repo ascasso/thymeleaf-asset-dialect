@@ -124,3 +124,9 @@ DefaultAssetDialectConfiguration config = DefaultAssetDialectConfiguration.build
 # Run security-specific tests
 ./gradlew :core:test --tests "*SecurityTest"
 ```
+
+## Publishing
+
+Publishing credentials and signing keys are not stored in this repository. Maintainers must provide
+`ossrhUsername`, `ossrhPassword`, `signingKey`, and `signingPassword` through their Gradle user
+properties or `-P` command-line properties.

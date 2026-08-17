@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-SNAPSHOT] - 2026-08-17
+
+### Changed
+- Raised the Java baseline from 21 to 25 and upgraded the sample application to Spring Boot 4.1.0.
+- Upgraded the Gradle wrapper to 9.7.0.
+- Added `tad:href` support alongside `tad:src`.
+- Corrected Maven publication metadata to identify the Thymeleaf Asset Dialect repository.
+
+### Fixed
+- Kept missing assets unversioned without reporting them as path-containment failures.
+- Preserved rejection of asset symlinks that escape the configured base directory.
+- Completed Mockito JUnit 5 extension adoption in resolver and processor tests.
+- Removed committed publishing and signing credential placeholders; maintainers must supply credentials
+  through Gradle user properties or command-line properties.
+- Updated project notes to describe the implemented security protections.
+
 ## [0.0.1] - 2025-07-06
 
 ### Security

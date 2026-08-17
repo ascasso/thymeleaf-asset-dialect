@@ -2,8 +2,9 @@ package io.github.thymeleaf.assetdialect.tad;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class DefaultAssetResolverTest {
 
     private DefaultAssetResolver resolver;
@@ -23,7 +25,6 @@ class DefaultAssetResolverTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         resolver = new DefaultAssetResolver(properties, environment);
     }
 
@@ -70,18 +71,11 @@ class DefaultAssetResolverTest {
         when(properties.getAssetBasePath()).thenReturn("src/test/resources/static");
         when(properties.getLocalPath()).thenReturn("/assets");
 
-        when(properties.isUseLocalInDev()).thenReturn(true);
-        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
-
-        // Test with a simple path
         String resolvedPath = resolver.resolve("test.css", null, true);
-        
-        // When forceLocal=true, should use localPath (/assets) not assetBasePath
-        // Since the file doesn't exist, hash calculation fails and version is added
-        assertThat(resolvedPath).isNotNull().startsWith("/assets");
-        assertThat(resolvedPath).contains("test");
-        assertThat(resolvedPath).contains(".css");
+
+        assertThat(resolvedPath).isEqualTo("/assets/test.9e1d43085fa164a02a4d8526e278d5d9.css");
     }
+
     @Test
     void shouldDefaultToCurrentTimestampWhenHashFails() {
         when(properties.isEnabled()).thenReturn(true);
